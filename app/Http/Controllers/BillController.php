@@ -8,6 +8,7 @@ use App\Models\GasBill;
 use App\Models\GasBillExtra;
 use App\Models\WaterBill;
 use App\Models\WaterBillExtra;
+use App\Services\BillLimitService;
 use App\Services\ElectricityBillService;
 use App\Services\GasBillService;
 use App\Services\WaterBillService;
@@ -21,16 +22,19 @@ class BillController extends Controller
     protected ElectricityBillService $electricityService;
     protected GasBillService $gasService;
     protected WaterBillService $waterService;
+    protected BillLimitService $billLimitService;
 
     public function __construct(
         ElectricityBillService $electricityService,
         GasBillService $gasService,
-        WaterBillService $waterService
+        WaterBillService $waterService,
+        BillLimitService $billLimitService,
     )
     {
         $this->electricityService = $electricityService;
         $this->gasService = $gasService;
         $this->waterService = $waterService;
+        $this->billLimitService = $billLimitService;
     }
 
     public function electricityBillIndex()
@@ -44,6 +48,10 @@ class BillController extends Controller
         $request->validate([
             'bill_id' => 'required|string',
         ]);
+
+        if (!$this->billLimitService->checkLimit(Auth::user(), 'electricity')) {
+            return back()->withErrors(['limit' => 'سقف مجاز شما برای ثبت قبض پر شده است.']);
+        }
 
         try {
             $data = $this->electricityService->inquire($request->bill_id);
@@ -122,6 +130,10 @@ class BillController extends Controller
             'participate_code' => 'required|string',
         ]);
 
+        if (!$this->billLimitService->checkLimit(Auth::user(), 'gas')) {
+            return back()->withErrors(['limit' => 'سقف مجاز شما برای ثبت قبض پر شده است.']);
+        }
+
         try {
             $data = $this->gasService->inquire($request->bill_id, $request->participate_code);
             $params = $data['Parameters'] ?? [];
@@ -194,6 +206,10 @@ class BillController extends Controller
         $request->validate([
             'bill_id' => 'required|string',
         ]);
+
+        if (!$this->billLimitService->checkLimit(Auth::user(), 'water')) {
+            return back()->withErrors(['limit' => 'سقف مجاز شما برای ثبت قبض پر شده است.']);
+        }
 
         try {
             $data = $this->waterService->inquire($request->bill_id);

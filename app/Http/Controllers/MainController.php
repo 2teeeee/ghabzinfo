@@ -10,4 +10,9 @@ class MainController extends Controller
     {
         return view('index');
     }
+
+    public function admin(): View
+    {
+        return view('admin');
+    }
 }
