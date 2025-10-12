@@ -2,8 +2,11 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BillController;
+use App\Http\Controllers\ElectricityBillController;
+use App\Http\Controllers\GasBillController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WaterBillController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [MainController::class, 'index'])->name('main.index');
@@ -39,6 +42,18 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/', [MainController::class, 'admin'])->name('index');
         Route::resource('users', UserController::class);
 
+        Route::prefix('electricity-bills')->name('electricity_bills.')->group(function () {
+            Route::get('/', [ElectricityBillController::class, 'index'])->name('index');
+            Route::get('/{bill}', [ElectricityBillController::class, 'show'])->name('show');
+        });
+        Route::prefix('gas-bills')->name('gas_bills.')->group(function () {
+            Route::get('/', [GasBillController::class, 'index'])->name('index');
+            Route::get('/{bill}', [GasBillController::class, 'show'])->name('show');
+        });
+        Route::prefix('water-bills')->name('water_bills.')->group(function () {
+            Route::get('/', [WaterBillController::class, 'index'])->name('index');
+            Route::get('/{bill}', [WaterBillController::class, 'show'])->name('show');
+        });
     });
 });
 

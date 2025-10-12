@@ -67,6 +67,9 @@
 <div class="admin-sidebar">
     <h5 class="text-center text-light mb-3">مدیریت سایت</h5>
     <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">👤 کاربران</a>
+    <a href="{{ route('admin.electricity_bills.index') }}" class="{{ request()->routeIs('admin.electricity_bills.*') ? 'active' : '' }}">قبض های برق</a>
+    <a href="{{ route('admin.gas_bills.index') }}" class="{{ request()->routeIs('admin.gas_bills.*') ? 'active' : '' }}">قبض های گاز</a>
+    <a href="{{ route('admin.water_bills.index') }}" class="{{ request()->routeIs('admin.water_bills.*') ? 'active' : '' }}">قبض های آب</a>
     <hr class="border-secondary">
     <a href="{{ route('main.index') }}">🏠 داشبورد</a>
     <a href="{{ route('logout') }}"
