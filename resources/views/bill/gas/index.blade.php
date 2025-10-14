@@ -14,11 +14,11 @@
             @csrf
             <div class="mb-3">
                 <label class="form-label" for="bill_id">شناسه قبض گاز</label>
-                <input type="text" name="bill_id" id="bill_id" class="form-control" required>
+                <input type="text" name="bill_id" id="bill_id" class="form-control">
             </div>
             <div class="mb-3">
                 <label class="form-label" for="participate_code">کد اشتراک</label>
-                <input type="text" name="participate_code" id="participate_code" class="form-control" required>
+                <input type="text" name="participate_code" id="participate_code" class="form-control">
             </div>
             <button class="btn btn-primary">استعلام و ذخیره</button>
         </form>
@@ -57,4 +57,16 @@
             </tbody>
         </table>
     </div>
+
+    <script>
+        document.getElementById('gasForm').addEventListener('submit', function (e) {
+            const billId = document.getElementById('bill_id').value.trim();
+            const participateCode = document.getElementById('participate_code').value.trim();
+
+            if (!billId && !participateCode) {
+                e.preventDefault();
+                alert('لطفاً حداقل یکی از فیلدهای شناسه قبض یا کد اشتراک را وارد کنید.');
+            }
+        });
+    </script>
 </x-main-layout>

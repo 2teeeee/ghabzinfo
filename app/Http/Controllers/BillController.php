@@ -126,9 +126,14 @@ class BillController extends Controller
     public function gasBillInquire(Request $request)
     {
         $request->validate([
-            'bill_id' => 'required|string',
-            'participate_code' => 'required|string',
+            'bill_id' => 'nullable|string',
+            'participate_code' => 'nullable|string',
         ]);
+
+
+        if (empty($request->bill_id) && empty($request->participate_code)) {
+            return back()->withErrors(['input' => 'حداقل یکی از فیلدهای شناسه قبض یا کد اشتراک باید وارد شود.']);
+        }
 
         if (!$this->billLimitService->checkLimit(Auth::user(), 'gas')) {
             return back()->withErrors(['limit' => 'سقف مجاز شما برای ثبت قبض پر شده است.']);
@@ -259,7 +264,7 @@ class BillController extends Controller
         }
     }
 
-    public function waterBillShow(GasBill $bill): View
+    public function waterBillShow(WaterBill $bill): View
     {
         $bill->load('extras');
 

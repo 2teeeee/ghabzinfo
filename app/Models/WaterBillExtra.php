@@ -11,8 +11,7 @@ class WaterBillExtra extends Model
     use HasFactory;
 
     protected $fillable = [
-        'water
-        _bill_id', 'key', 'value'
+        'water_bill_id', 'key', 'value'
     ];
 
     public function bill(): BelongsTo
