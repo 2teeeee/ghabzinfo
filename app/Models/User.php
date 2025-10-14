@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -91,5 +92,25 @@ class User extends Authenticatable
     public function waterBills(): HasMany
     {
         return $this->hasMany(WaterBill::class);
+    }
+
+    public function city(): BelongsTo
+    {
+        return $this->belongsTo(City::class);
+    }
+
+    public function organ(): BelongsTo
+    {
+        return $this->belongsTo(Organ::class);
+    }
+
+    public function unit(): BelongsTo
+    {
+        return $this->belongsTo(Unit::class);
+    }
+
+    public function center(): BelongsTo
+    {
+        return $this->belongsTo(Center::class);
     }
 }

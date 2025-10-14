@@ -38,7 +38,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    Route::middleware(['role:admin,manager'])->group(function () {
+    Route::middleware(['role:admin,city,organ,vahed,markaz'])->group(function () {
         Route::get('/', [MainController::class, 'admin'])->name('index');
         Route::resource('users', UserController::class);
 
@@ -53,6 +53,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::prefix('water-bills')->name('water_bills.')->group(function () {
             Route::get('/', [WaterBillController::class, 'index'])->name('index');
             Route::get('/{bill}', [WaterBillController::class, 'show'])->name('show');
+        });
+
+        Route::prefix('api')->group(function () {
+            Route::get('organs', [HierarchyController::class, 'organs']);
+            Route::get('units', [HierarchyController::class, 'units']);
+            Route::get('centers', [HierarchyController::class, 'centers']);
         });
     });
 });

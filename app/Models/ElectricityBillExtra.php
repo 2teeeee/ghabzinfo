@@ -5,17 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ElectricityBillExtra extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'electricity_bill_id', 'key', 'value'
+        'electricity_bill_period_id',
+        'key',
+        'value',
     ];
 
-    public function bill(): BelongsTo
+    public function period(): BelongsTo
     {
-        return $this->belongsTo(ElectricityBill::class);
+        return $this->belongsTo(ElectricityBillPeriod::class, 'electricity_bill_period_id');
     }
 }

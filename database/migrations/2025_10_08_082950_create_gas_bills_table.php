@@ -11,13 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('gas_bills', function (Blueprint $table) {
+        Schema::create('gas_accounts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('city_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('organ_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('unit_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('center_id')->nullable()->constrained()->onDelete('set null');
+            $table->string('bill_id')->unique();
             $table->string('full_name')->nullable();
             $table->string('address')->nullable();
-            $table->integer('amount')->nullable();
-            $table->string('bill_id');
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
+        Schema::create('gas_bill_periods', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('gas_account_id')->constrained()->onDelete('cascade');
+            $table->bigInteger('amount')->nullable();
             $table->string('payment_id')->nullable();
             $table->string('previous_date')->nullable();
             $table->string('current_date')->nullable();
@@ -32,16 +43,18 @@ return new class extends Migration
             $table->string('status_code')->nullable();
             $table->string('status_description')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
-
 
         Schema::create('gas_bill_extras', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('gas_bill_id')->constrained()->onDelete('cascade');
+            $table->foreignId('gas_bill_period_id')->constrained()->onDelete('cascade');
             $table->string('key');
             $table->text('value')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
+
     }
 
     /**
@@ -49,10 +62,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('gas_bills', function (Blueprint $table) {
+        Schema::table('gas_accounts', function (Blueprint $table) {
             $table->dropConstrainedForeignId('user_id');
         });
-        Schema::dropIfExists('gas_bills');
+        Schema::dropIfExists('gas_bill_periods');
         Schema::dropIfExists('gas_bill_extras');
 
     }

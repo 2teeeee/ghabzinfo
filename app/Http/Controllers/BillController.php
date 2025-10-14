@@ -39,33 +39,50 @@ class BillController extends Controller
 
     public function electricityBillIndex()
     {
-        $bills = ElectricityBill::with('extras')->latest()->get();
+        $bills = ElectricityBill::with(['extras', 'user'])
+            ->when(!Auth::user()->hasRole(['admin', 'manager']), function ($q) {
+                $q->where('user_id', Auth::id());
+            })
+            ->latest()
+            ->paginate(15);
         return view('bill.electricity.index', compact('bills'));
     }
 
     public function electricityBillInquire(Request $request)
     {
-        $request->validate([
-            'bill_id' => 'required|string',
+        $validated = $request->validate([
+            'bill_id' => ['required', 'string', 'max:50'],
         ]);
 
-        if (!$this->billLimitService->checkLimit(Auth::user(), 'electricity')) {
+        $user = Auth::user();
+
+        if (!$this->billLimitService->checkLimit($user, 'electricity')) {
             return back()->withErrors(['limit' => 'سقف مجاز شما برای ثبت قبض پر شده است.']);
         }
 
         try {
-            $data = $this->electricityService->inquire($request->bill_id);
+            DB::beginTransaction();
+
+            $data = $this->electricityService->inquire($validated['bill_id']);
             $params = $data['Parameters'] ?? [];
 
             DB::beginTransaction();
 
-            // ایجاد رکورد اصلی قبض
+            // جلوگیری از ذخیره قبض تکراری در همان دوره
+            $existing = ElectricityBill::where('bill_id', $validated['bill_id'])
+                ->where('current_date', $params['CurrentDate'] ?? null)
+                ->first();
+
+            if ($existing) {
+                throw new \Exception('این قبض قبلاً برای این دوره ثبت شده است.');
+            }
+
             $bill = ElectricityBill::create([
-                'user_id' => Auth::check() ? Auth::id() : null,
+                'user_id' => $user?->id,
                 'full_name' => $params['FullName'] ?? null,
                 'address' => $params['Address'] ?? null,
                 'amount' => $params['Amount'] ?? 0,
-                'bill_id' => $params['BillID'] ?? $request->bill_id,
+                'bill_id' => $params['BillID'] ?? $validated['bill_id'],
                 'payment_id' => $params['PaymentID'] ?? null,
                 'previous_date' => $params['PreviousDate'] ?? null,
                 'current_date' => $params['CurrentDate'] ?? null,
@@ -85,9 +102,10 @@ class BillController extends Controller
                 'status_description' => $data['Status']['Description'] ?? null,
             ]);
 
-            // ذخیره اطلاعات اضافی از فیلد ExtraInfo (در JSON)
-            if (!empty($params['ExtraInfo'])) {
-                $extraData = json_decode($params['ExtraInfo'], true);
+            // ذخیره اطلاعات اضافی
+            $extraInfo = $params['ExtraInfo'] ?? null;
+            if ($extraInfo) {
+                $extraData = is_string($extraInfo) ? json_decode($extraInfo, true) : $extraInfo;
                 if (is_array($extraData)) {
                     foreach ($extraData as $key => $value) {
                         ElectricityBillExtra::create([
@@ -117,6 +135,7 @@ class BillController extends Controller
 
         return view('bill.electricity.show', compact('bill'));
     }
+
     public function gasBillIndex()
     {
         $bills = GasBill::with('extras')->latest()->get();

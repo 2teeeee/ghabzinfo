@@ -14,11 +14,19 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email')->unique();
+            $table->string('username')->unique();
+            $table->string('mobile')->unique();
+            $table->timestamp('mobile_verified_at')->nullable();
+            $table->string('email')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('mobile')->unique();
             $table->timestamp('mobile_verified_at')->nullable();
             $table->string('password');
+            $table->foreignId('city_id')->nullable()->constrained()->onDelete('set null');    // شهرستان
+            $table->foreignId('organ_id')->nullable()->constrained()->onDelete('set null');   // سازمان
+            $table->foreignId('unit_id')->nullable()->constrained()->onDelete('set null');    // واحد
+            $table->foreignId('center_id')->nullable()->constrained()->onDelete('set null');
+            $table->unsignedInteger('bill_limit')->default(10);
             $table->rememberToken();
             $table->timestamps();
         });
@@ -37,15 +45,43 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
+        Schema::create('cities', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
+        });
+
+        Schema::create('organs', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('city_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->timestamps();
+        });
+
+        Schema::create('units', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('organ_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->timestamps();
+        });
+
+        Schema::create('centers', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('unit_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->timestamps();
+        });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('cities');
+        Schema::dropIfExists('organs');
+        Schema::dropIfExists('units');
+        Schema::dropIfExists('centers');
     }
 };
