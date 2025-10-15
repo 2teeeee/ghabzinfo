@@ -1,63 +1,71 @@
 <x-admin-layout title="جزئیات قبض آب" header="جزئیات قبض آب">
     <div class="container py-4">
+        <h4 class="mb-4">جزئیات قبض آب: {{ $account->bill_id }}</h4>
 
-        <h4 class="mb-3">جزئیات قبض آب</h4>
-
+        {{-- اطلاعات کلی حساب --}}
         <div class="card shadow-sm mb-4">
-            <div class="card-header bg-primary text-white">
-                اطلاعات اصلی قبض
-            </div>
             <div class="card-body">
-                <div class="row mb-2">
-                    <div class="col-md-3"><strong>کاربر:</strong> {{ $bill->user->name ?? '—' }}</div>
-                    <div class="col-md-3"><strong>نام مشترک:</strong> {{ $bill->full_name }}</div>
-                    <div class="col-md-3"><strong>شماره قبض:</strong> {{ $bill->bill_id }}</div>
-                    <div class="col-md-3"><strong>تاریخ آخرین قبض:</strong> {{ $bill->current_date }}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-md-3"><strong>آدرس:</strong> {{ $bill->address }}</div>
-                    <div class="col-md-3"><strong>مبلغ:</strong> {{ number_format($bill->amount) }}</div>
-                    <div class="col-md-3"><strong>وضعیت:</strong> {{ $bill->status_description }}</div>
-                    <div class="col-md-3"><strong>PDF قبض:</strong>
-                        @if($bill->bill_pdf_url)
-                            <a href="{{ $bill->bill_pdf_url }}" target="_blank" class="btn btn-sm btn-outline-secondary">دانلود</a>
-                        @else
-                            ندارد
-                        @endif
-                    </div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-md-3"><strong>تاریخ قرائت قبلی:</strong> {{ $bill->previous_date ?? '---' }}</div>
-                    <div class="col-md-3"><strong>تاریخ پرداخت:</strong> {{ $bill->payment_date ?? '---' }}</div>
-                    <div class="col-md-3"></div>
-                </div>
-
+                <h5 class="card-title">{{ $account->full_name }}</h5>
+                <p class="card-text mb-1"><strong>آدرس:</strong> {{ $account->address }}</p>
+                <p class="card-text mb-1">
+                    <strong>سلسله‌مراتب:</strong>
+                    {{ $account->center->name ?? '-' }} /
+                    {{ $account->center->unit->name ?? '-' }} /
+                    {{ $account->center->unit->organ->name ?? '-' }} /
+                    {{ $account->center->unit->organ->city->name ?? '-' }}
+                </p>
+                <p class="card-text"><strong>کاربر ثبت‌کننده:</strong> {{ $account->user->name ?? '-' }}</p>
             </div>
         </div>
 
-        @if($bill->extras->isNotEmpty())
-            <div class="card shadow-sm">
-                <div class="card-header bg-success text-white">
-                    اطلاعات اضافی قبض
-                </div>
-                <div class="card-body">
-                    <div class="row row-cols-1 row-cols-md-2 g-3">
-                        @foreach($bill->extras as $extra)
-                            <div class="col">
-                                <div class="card border-info h-100">
-                                    <div class="card-body">
-                                        <h6 class="card-title">{{ $extra->key }}</h6>
-                                        <p class="card-text">{{ $extra->value }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
+        {{-- Accordion دوره‌ها --}}
+        <div class="accordion" id="periodAccordion">
+            @foreach($account->periods as $index => $period)
+                <div class="accordion-item mb-2 shadow-sm">
+                    <h2 class="accordion-header" id="heading-{{ $period->id }}">
+                        <button class="accordion-button {{ $index != 0 ? 'collapsed' : '' }}"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#collapse-{{ $period->id }}"
+                                aria-expanded="{{ $index == 0 ? 'true' : 'false' }}"
+                                aria-controls="collapse-{{ $period->id }}">
+                            دوره {{ $period->current_date ?? '-' }} - {{ number_format($period->amount) }} تومان
+                        </button>
+                    </h2>
+                    <div id="collapse-{{ $period->id }}"
+                         class="accordion-collapse collapse {{ $index == 0 ? 'show' : '' }}"
+                         aria-labelledby="heading-{{ $period->id }}"
+                         data-bs-parent="#periodAccordion">
+                        <div class="accordion-body">
+                            <p class="mb-1"><strong>تاریخ قبلی:</strong> {{ $period->previous_date ?? '-' }}</p>
+                            <p class="mb-1"><strong>تاریخ فعلی:</strong> {{ $period->current_date ?? '-' }}</p>
+                            <p class="mb-1"><strong>تاریخ پرداخت:</strong> {{ $period->payment_date ?? '-' }}</p>
+                            <p class="mb-1"><strong>PDF قبض:</strong>
+                                @if($period->bill_pdf_url)
+                                    <a href="{{ $period->bill_pdf_url }}" target="_blank" class="link-primary">مشاهده</a>
+                                @else
+                                    -
+                                @endif
+                            </p>
+                            <p class="mb-1"><strong>وضعیت:</strong> <span class="badge bg-info">{{ $period->status_description ?? '-' }}</span></p>
+
+                            {{-- اطلاعات اضافی --}}
+                            @if($period->extras->count())
+                                <h6 class="mt-3">اطلاعات اضافی</h6>
+                                <ul class="list-group list-group-flush">
+                                    @foreach($period->extras as $extra)
+                                        <li class="list-group-item py-1 px-2">
+                                            <strong>{{ $extra->key }}:</strong> {{ $extra->value }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </div>
                     </div>
                 </div>
-            </div>
-        @endif
+            @endforeach
+        </div>
 
-        <a href="{{ route('admin.water_bills.index') }}" class="btn btn-secondary mt-3">بازگشت به لیست</a>
-
+        <a href="{{ route('admin.water_bills.index') }}" class="btn btn-secondary mt-3">بازگشت به لیست قبوض</a>
     </div>
 </x-admin-layout>
