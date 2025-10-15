@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Center;
+use App\Models\City;
 use App\Models\ElectricityAccount;
 use App\Models\ElectricityBillExtra;
 use App\Models\ElectricityBillPeriod;
@@ -69,12 +70,15 @@ class ElectricityBillController extends Controller
     {
         $user = Auth::user();
 
+        $cities = [];
         $centers = [];
+
         if ($user->hasRole(['admin','city','organ','unit'])) {
-            $centers = Center::with('unit.organ.city')->get();
+            $cities = City::orderBy('name')->get(['id', 'name']);
+            $centers = Center::with('unit.organ.city')->get(['id', 'name', 'unit_id']);
         }
 
-        return view('admin.electricity_bills.create', compact('centers'));
+        return view('admin.electricity_bills.create', compact('centers', 'cities'));
     }
 
     public function store(Request $request): RedirectResponse

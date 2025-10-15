@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\ElectricityBillController;
 use App\Http\Controllers\GasBillController;
+use App\Http\Controllers\HierarchyController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WaterBillController;
@@ -44,6 +45,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
         Route::prefix('electricity-bills')->name('electricity_bills.')->group(function () {
             Route::get('/', [ElectricityBillController::class, 'index'])->name('index');
+            Route::get('/create', [ElectricityBillController::class, 'create'])->name('create');
+            Route::post('/store', [ElectricityBillController::class, 'store'])->name('store');
+            Route::post('/refresh', [ElectricityBillController::class, 'refresh'])->name('refresh');
             Route::get('/{bill}', [ElectricityBillController::class, 'show'])->name('show');
         });
         Route::prefix('gas-bills')->name('gas_bills.')->group(function () {

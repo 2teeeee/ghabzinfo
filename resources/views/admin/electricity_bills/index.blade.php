@@ -7,6 +7,7 @@
                 <input type="text" name="bill_id" class="form-control" placeholder="جستجو بر اساس کد اشتراک"
                        value="{{ request('bill_id') }}">
                 <button class="btn btn-primary" type="submit">جستجو</button>
+                <a href="{{route('admin.electricity_bills.create')}}" class="btn btn-info ms-2">قبض جدید</a>
             </div>
         </form>
 
