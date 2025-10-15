@@ -17,8 +17,8 @@
                                 $role = auth()->user()->roles()->pluck('name')->first();
                                 $isCity   = $role === 'city';
                                 $isOrgan  = $role === 'organ';
-                                $isUnit   = $role === 'vahed';
-                                $isCenter = $role === 'markaz';
+                                $isUnit   = $role === 'unit';
+                                $isCenter = $role === 'center';
                             @endphp
 
                             <div class="row">
@@ -113,7 +113,7 @@
 
             // اگر کاربر مرکز نباشد، Selectها را وابسته لود می‌کنیم
             const role = "{{ $role }}";
-            if (role !== 'markaz') {
+            if (role !== 'center') {
                 function fetchAndFill(url, targetSelect, loaderId, nextSelects = []) {
                     const loader = document.getElementById(loaderId);
                     const select = document.getElementById(targetSelect);

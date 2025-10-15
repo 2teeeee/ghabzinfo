@@ -7,11 +7,7 @@ use App\Models\City;
 use App\Models\ElectricityAccount;
 use App\Models\ElectricityBillExtra;
 use App\Models\ElectricityBillPeriod;
-use App\Models\User;
-use App\Services\BillLimitService;
 use App\Services\ElectricityBillService;
-use App\Services\GasBillService;
-use App\Services\WaterBillService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,16 +18,14 @@ class ElectricityBillController extends Controller
 {
     protected ElectricityBillService $billService;
 
-    public function __construct(
-        ElectricityBillService $billService,
-    )
+    public function __construct(ElectricityBillService $billService)
     {
         $this->billService = $billService;
     }
 
     public function index(Request $request): View
     {
-        $query = ElectricityAccount::query()->with(['latestPeriod', 'latestPeriod.extras', 'center.unit.organ.city']);
+        $query = ElectricityAccount::query()->whereNull('deleted_at')->with(['latestPeriod', 'latestPeriod.extras', 'center.unit.organ.city']);
 
         // فیلتر بر اساس شناسه قبض
         if ($request->filled('bill_id')) {
@@ -228,4 +222,24 @@ class ElectricityBillController extends Controller
         }
     }
 
+    public function destroy(int $id): RedirectResponse
+    {
+        $account = ElectricityAccount::withTrashed()->find($id);
+
+        if (! $account) {
+            return redirect()->back()->withErrors(['error' => 'قبض مورد نظر پیدا نشد.']);
+        }
+
+        // بررسی دسترسی کاربر بر اساس نقش
+        $user = Auth::user();
+        if ($user->hasRole('center') && $account->center_id !== $user->center_id) {
+            return redirect()->back()->withErrors(['error' => 'شما مجاز به حذف این قبض نیستید.']);
+        }
+
+        $account->delete();
+
+        return redirect()
+            ->route('admin.electricity_bills.index')
+            ->with('success', 'قبض با موفقیت حذف شد.');
+    }
 }

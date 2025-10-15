@@ -38,10 +38,17 @@
                         <td>{{ number_format($account->latestPeriod->amount ?? 0) }}</td>
                         <td>{{ $account->latestPeriod->status_description ?? '-' }}</td>
                         <td>
-                            <a href="{{ route('admin.electricity.show', $account->id) }}" class="btn btn-sm btn-info">جزئیات</a>
-                            <form action="{{ route('admin.electricity.refresh', $account->id) }}" method="POST" class="d-inline">
+                            <a href="{{ route('admin.electricity_bills.show', $account->id) }}" class="btn btn-sm btn-info">جزئیات</a>
+                            <form action="{{ route('admin.electricity_bills.refresh', $account->id) }}" method="POST" class="d-inline">
                                 @csrf
                                 <button type="submit" class="btn btn-sm btn-warning">استعلام جدید</button>
+                            </form>
+                            <form action="{{ route('admin.electricity_bills.destroy', $bill->id) }}" method="POST" onsubmit="return confirm('آیا مطمئنید که می‌خواهید این قبض را حذف کنید؟')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-trash"></i> حذف
+                                </button>
                             </form>
                         </td>
                     </tr>

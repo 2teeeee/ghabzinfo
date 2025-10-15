@@ -74,6 +74,6 @@
             @endforeach
         </div>
 
-        <a href="{{ route('admin.electricity.index') }}" class="btn btn-secondary mt-3">بازگشت به لیست قبوض</a>
+        <a href="{{ route('admin.electricity_bills.index') }}" class="btn btn-secondary mt-3">بازگشت به لیست قبوض</a>
     </div>
 </x-admin-layout>
