@@ -1,17 +1,19 @@
-<x-admin-layout title="افزودن کاربر جدید" header="افزودن کاربر جدید">
+<x-admin-layout title="ایجاد کاربر جدید" header="ایجاد کاربر جدید">
+    <div class="container-fluid py-4">
 
-    <div class="row justify-content-center mx-0 py-5">
-        <div class="col-md-10">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-header bg-primary text-white text-center py-3 rounded-top-3">
-                    <h5 class="mb-0">ایجاد کاربر جدید</h5>
-                </div>
-                <div class="card-body p-4">
-                    <form action="{{ route('admin.users.store') }}" method="POST" class="needs-validation" novalidate>
-                        @csrf
-                        @include('users._form')
-                    </form>
-                </div>
+        <x-admin-page-header
+            title="ایجاد کاربر جدید"
+            icon="bi-person-fill"
+            :back-url="route('admin.users.index')"
+        />
+
+        <div class="card border-0 shadow-lg rounded-0">
+
+            <div class="card-body px-4 py-5">
+                <form id="createUserForm" action="{{ route('admin.users.store') }}" class="needs-validation" novalidate method="POST">
+                    @csrf
+                    @include('users._form')
+                </form>
             </div>
         </div>
     </div>

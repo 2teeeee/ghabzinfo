@@ -99,7 +99,6 @@
     @endif
 
     <div class="d-flex justify-content-between mt-4">
-        <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">بازگشت</a>
         <button type="submit" class="btn btn-success">
             {{ isset($user) ? 'ویرایش کاربر' : 'ایجاد کاربر' }}
         </button>

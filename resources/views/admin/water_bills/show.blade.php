@@ -1,6 +1,11 @@
 <x-admin-layout title="جزئیات قبض آب" header="جزئیات قبض آب">
     <div class="container py-4">
-        <h4 class="mb-4">جزئیات قبض آب: {{ $account->bill_id }}</h4>
+
+        <x-admin-page-header
+            title="جزئیات قبض آب: {{ $account->bill_id }}"
+            icon="bi-droplet-fill"
+            :back-url="route('admin.electricity_bills.index')"
+        />
 
         {{-- اطلاعات کلی حساب --}}
         <div class="card shadow-sm mb-4">

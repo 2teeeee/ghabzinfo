@@ -1,6 +1,11 @@
 <x-admin-layout title="جزئیات قبض گاز" header="جزئیات قبض گاز">
     <div class="container py-4">
-        <h4 class="mb-4">جزئیات قبض گاز: {{ $account->bill_id }}</h4>
+
+        <x-admin-page-header
+            title="جزئیات قبض گاز: {{ $account->bill_id }}"
+            icon="bi-fire-fill"
+            :back-url="route('admin.electricity_bills.index')"
+        />
 
         {{-- اطلاعات کلی حساب --}}
         <div class="card shadow-sm mb-4">
