@@ -1,6 +1,9 @@
-<x-main-layout>
-    <div class="row justify-content-center mx-0 my-5 py-5">
+<x-blank-layout>
+    <div class="row justify-content-center mx-0 my-5">
         <div class="col-md-4 border rounded-2 shadow-sm px-0 bg-white">
+            <div class="text-center py-2">
+                <img src="{{asset('img/logo-sums.png')}}" width="150" alt="sums"/>
+            </div>
             <h5 class="bg-light text-center p-3 rounded-top-2 fw-bold border-bottom">
                 ورود به سامانه
             </h5>
@@ -78,4 +81,4 @@
             </form>
         </div>
     </div>
-</x-main-layout>
+</x-blank-layout>
