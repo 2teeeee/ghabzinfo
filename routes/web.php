@@ -1,10 +1,14 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CenterController;
+use App\Http\Controllers\CityController;
 use App\Http\Controllers\ElectricityBillController;
 use App\Http\Controllers\GasBillController;
 use App\Http\Controllers\HierarchyController;
 use App\Http\Controllers\MainController;
+use App\Http\Controllers\OrganController;
+use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WaterBillController;
 use Illuminate\Support\Facades\Route;
@@ -53,6 +57,22 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
             Route::get('units', [HierarchyController::class, 'units']);
             Route::get('centers', [HierarchyController::class, 'centers']);
         });
+    });
+
+    Route::middleware(['role:admin'])->group(function () {
+        Route::resource('cities', CityController::class)->names('cities');
+    });
+
+    Route::middleware(['role:admin,city'])->group(function () {
+        Route::resource('organs', OrganController::class)->names('organs');
+    });
+
+    Route::middleware(['role:admin,city,organ'])->group(function () {
+        Route::resource('units', UnitController::class)->names('units');
+    });
+
+    Route::middleware(['role:admin,city,organ,unit'])->group(function () {
+        Route::resource('centers', CenterController::class)->names('centers');
     });
 });
 

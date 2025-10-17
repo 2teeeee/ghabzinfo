@@ -138,6 +138,32 @@
         قبض‌های آب
     </a>
     <hr class="border-secondary">
+    @if(auth()->user()->hasRole('admin'))
+    <a href="{{ route('admin.cities.index') }}" class="{{ request()->routeIs('admin.cities.*') ? 'active' : '' }}">
+        <i class="bi bi-card-list me-2"></i>
+        لیست شهرها
+    </a>
+    @endif
+    @if(auth()->user()->hasRole(['admin','city']))
+        <a href="{{ route('admin.organs.index') }}" class="{{ request()->routeIs('admin.organs.*') ? 'active' : '' }}">
+            <i class="bi bi-building me-2"></i>
+            لیست ارگانها
+        </a>
+    @endif
+    @if(auth()->user()->hasRole(['admin','city','organ']))
+        <a href="{{ route('admin.units.index') }}" class="{{ request()->routeIs('admin.units.*') ? 'active' : '' }}">
+            <i class="bi bi-diagram-3 me-2"></i>
+            لیست واحدها
+        </a>
+    @endif
+    @if(auth()->user()->hasRole(['admin','city','organ','units']))
+        <a href="{{ route('admin.centers.index') }}" class="{{ request()->routeIs('admin.centers.*') ? 'active' : '' }}">
+            <i class="bi bi-buildings me-2"></i>
+            لیست مراکز
+        </a>
+    @endif
+    <hr class="border-secondary">
+
     <a href="{{ route('logout') }}"
        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
         <i class="bi bi-box-arrow-left"></i>
