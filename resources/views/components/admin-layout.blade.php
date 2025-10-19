@@ -163,7 +163,13 @@
         </a>
     @endif
     <hr class="border-secondary">
-
+    @if(auth()->user()->hasRole(['admin','city','organ','units']))
+        <a href="{{ route('admin.reports.electricity.last') }}" class="{{ request()->routeIs('admin.reports.electricity.*') ? 'active' : '' }}">
+            <i class="bi bi-chart me-2"></i>
+            گزارش ماه آخر قبوض برق
+        </a>
+    @endif
+    <hr class="border-secondary">
     <a href="{{ route('logout') }}"
        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
         <i class="bi bi-box-arrow-left"></i>
