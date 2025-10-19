@@ -8,6 +8,7 @@ use App\Http\Controllers\GasBillController;
 use App\Http\Controllers\HierarchyController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\OrganController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WaterBillController;
@@ -50,6 +51,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
             Route::post('/refresh', [WaterBillController::class, 'refresh'])->name('refresh');
             Route::delete('/{id}', [WaterBillController::class, 'destroy'])->name('destroy');
             Route::get('/{bill}', [WaterBillController::class, 'show'])->name('show');
+        });
+
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('/electricity/last', [ReportController::class, 'electricityBillLastMonth'])->name('electricity.last');
         });
 
         Route::prefix('api')->group(function () {
