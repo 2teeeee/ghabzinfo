@@ -9,11 +9,11 @@ class GasBillExtra extends Model
 {
 
     protected $fillable = [
-        'gas_bill_id', 'key', 'value'
+        'gas_bill_period_id', 'key', 'value'
     ];
 
-    public function bill(): BelongsTo
+    public function period(): BelongsTo
     {
-        return $this->belongsTo(GasBill::class);
+        return $this->belongsTo(GasBillPeriod::class, 'gas_bill_period_id');
     }
 }

@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Center;
 use App\Models\City;
-use App\Models\User;
 use App\Models\WaterAccount;
-use App\Models\WaterBill;
 use App\Models\WaterBillExtra;
 use App\Models\WaterBillPeriod;
 use App\Services\WaterBillService;
@@ -54,13 +52,13 @@ class WaterBillController extends Controller
 
     public function show(int $accountId): View
     {
-        $bill = WaterAccount::with([
+        $account = WaterAccount::with([
             'periods.extras',
             'center.unit.organ.city',
             'user'
         ])->findOrFail($accountId);
 
-        return view('admin.water_bills.show', compact('bill'));
+        return view('admin.water_bills.show', compact('account'));
     }
 
     public function create(): View
@@ -143,7 +141,7 @@ class WaterBillController extends Controller
 
             DB::commit();
 
-            return redirect()->route('admin.water.index')
+            return redirect()->route('admin.water_bills.index')
                 ->with('success', 'قبض با موفقیت ثبت یا بروزرسانی شد.');
 
         } catch (\Throwable $e) {

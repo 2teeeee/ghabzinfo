@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class WaterBillExtra extends Model
 {
     protected $fillable = [
-        'water_bill_id', 'key', 'value'
+        'water_bill_period_id', 'key', 'value'
     ];
 
-    public function bill(): BelongsTo
+    public function period(): BelongsTo
     {
-        return $this->belongsTo(WaterAccount::class);
+        return $this->belongsTo(WaterBillPeriod::class, 'water_bill_period_id');
     }
 }

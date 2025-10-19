@@ -55,13 +55,13 @@ class GasBillController extends Controller
 
     public function show(int $accountId): View
     {
-        $bill = GasAccount::with([
+        $account = GasAccount::with([
             'periods.extras',
             'center.unit.organ.city',
             'user'
         ])->findOrFail($accountId);
 
-        return view('admin.gas_bills.show', compact('bill'));
+        return view('admin.gas_bills.show', compact('account'));
     }
 
     public function create(): View
@@ -114,8 +114,7 @@ class GasBillController extends Controller
                     'address' => $params['Address'] ?? null,
                 ]
             );
-
-            // بررسی وجود دوره بر اساس current_date و cycle
+            // بررسی وجود دوره بر اساس current_date
             $period = GasBillPeriod::updateOrCreate(
                 [
                     'gas_account_id' => $account->id,

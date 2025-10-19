@@ -28,13 +28,11 @@ class HierarchyController extends Controller
         }
 
         $cacheKey = "organs_city_{$cityId}";
-        $organs = Cache::remember($cacheKey, now()->addMinutes($this->cacheMinutes), function () use ($cityId) {
-            return Organ::query()
+        $organs = Organ::query()
                 ->select('id', 'name')
                 ->where('city_id', $cityId)
                 ->orderBy('name')
                 ->get();
-        });
 
         return response()->json(['success' => true, 'data' => $organs]);
     }
@@ -50,13 +48,11 @@ class HierarchyController extends Controller
         }
 
         $cacheKey = "units_organ_{$organId}";
-        $units = Cache::remember($cacheKey, now()->addMinutes($this->cacheMinutes), function () use ($organId) {
-            return Unit::query()
+        $units = Unit::query()
                 ->select('id', 'name')
                 ->where('organ_id', $organId)
                 ->orderBy('name')
                 ->get();
-        });
 
         return response()->json(['success' => true, 'data' => $units]);
     }
@@ -67,18 +63,17 @@ class HierarchyController extends Controller
         $unitId = $request->unit_id;
         $user = Auth::user();
 
-        if ($user->hasRole('vahed') && $user->unit_id != $unitId) {
+        if ($user->hasRole('center') && $user->unit_id != $unitId) {
             return response()->json(['success' => false, 'message' => 'دسترسی غیرمجاز.'], 403);
         }
 
         $cacheKey = "centers_unit_{$unitId}";
-        $centers = Cache::remember($cacheKey, now()->addMinutes($this->cacheMinutes), function () use ($unitId) {
-            return Center::query()
+        $centers = Center::query()
                 ->select('id', 'name')
                 ->where('unit_id', $unitId)
                 ->orderBy('name')
                 ->get();
-        });
+
 
         return response()->json(['success' => true, 'data' => $centers]);
     }

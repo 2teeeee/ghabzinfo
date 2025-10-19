@@ -17,7 +17,7 @@ class ElectricityBillService
     {
         $this->baseUrl = config('services.bill_api.url', env('BILL_API_URL'));
         $this->token = config('services.bill_api.token', env('BILL_API_TOKEN'));
-        $this->cacheMinutes = config('services.bill_api.token', env('BILL_CACHE_MINUTES'));
+        $this->cacheMinutes = config('services.bill_api.BILL_CACHE_MINUTES', env('BILL_CACHE_MINUTES'));
     }
 
     /**

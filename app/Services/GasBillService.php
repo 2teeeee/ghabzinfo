@@ -34,23 +34,20 @@ class GasBillService
      * @throws Exception
      */
 
-    public function inquire(?string $billId, ?string $participateCode): array
+    public function inquire(?string $billId): array
     {
-        if (empty($billId) && empty($participateCode)) {
+        if (empty($billId)) {
             throw new \Exception("حداقل یکی از مقادیر شناسه قبض یا کد اشتراک باید وارد شود.");
         }
 
-        $cacheKey = $billId ? "gas_bill_{$billId}" : "gas_bill_{$participateCode}" ;
+        $cacheKey = "gas_bill_{$billId}" ;
 
-        return Cache::remember($cacheKey, now()->addMinutes($this->cacheMinutes), function () use ($billId, $participateCode) {
+        return Cache::remember($cacheKey, now()->addMinutes($this->cacheMinutes), function () use ($billId) {
             $url = "{$this->baseUrl}/GasBillInquiry";
 
             $parameters = [];
             if (!empty($billId)) {
                 $parameters['GasBillID'] = $billId;
-            }
-            if (!empty($participateCode)) {
-                $parameters['ParticipateCode'] = $participateCode;
             }
 
             $payload = [

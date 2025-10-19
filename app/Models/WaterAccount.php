@@ -44,11 +44,11 @@ class WaterAccount extends Model
 
     public function periods(): HasMany
     {
-        return $this->hasMany(ElectricityBillPeriod::class);
+        return $this->hasMany(WaterBillPeriod::class);
     }
 
     public function latestPeriod(): HasOne
     {
-        return $this->hasOne(ElectricityBillPeriod::class)->latestOfMany();
+        return $this->hasOne(WaterBillPeriod::class)->latestOfMany();
     }
 }
