@@ -7,6 +7,7 @@ use App\Models\City;
 use App\Models\WaterAccount;
 use App\Models\WaterBillExtra;
 use App\Models\WaterBillPeriod;
+use App\Services\CommonService;
 use App\Services\WaterBillService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -116,13 +117,13 @@ class WaterBillController extends Controller
             $period = WaterBillPeriod::updateOrCreate(
                 [
                     'water_account_id' => $account->id,
-                    'current_date' => $params['CurrentDate'] ?? null,
+                    'current_date' => CommonService::normalizeDate($params['CurrentDate'] ?? null),
                 ],
                 [
                     'amount' => $params['Amount'] ?? 0,
                     'payment_id' => $params['PaymentID'] ?? null,
-                    'previous_date' => $params['PreviousDate'] ?? null,
-                    'payment_date' => $params['PaymentDate'] ?? null,
+                    'previous_date' => CommonService::normalizeDate($params['PreviousDate'] ?? null),
+                    'payment_date' => CommonService::normalizeDate($params['PaymentDate'] ?? null),
                     'bill_pdf_url' => $params['BillPdfUrl'] ?? null,
                     'status_code' => $data['Status']['Code'] ?? null,
                     'status_description' => $data['Status']['Description'] ?? null,
@@ -167,8 +168,8 @@ class WaterBillController extends Controller
             $periodData = [
                 'amount' => $params['Amount'] ?? 0,
                 'payment_id' => $params['PaymentID'] ?? null,
-                'previous_date' => $params['PreviousDate'] ?? null,
-                'payment_date' => $params['PaymentDate'] ?? null,
+                'previous_date' => CommonService::normalizeDate($params['PreviousDate'] ?? null),
+                'payment_date' => CommonService::normalizeDate($params['PaymentDate'] ?? null),
                 'bill_pdf_url' => $params['BillPdfUrl'] ?? null,
                 'status_code' => $data['Status']['Code'] ?? null,
                 'status_description' => $data['Status']['Description'] ?? null,
@@ -176,7 +177,7 @@ class WaterBillController extends Controller
 
             // بررسی اینکه آیا دوره با current_date موجود است یا خیر
             $period = $account->periods()->updateOrCreate(
-                ['current_date' => $periodData['current_date']],
+                ['current_date' => CommonService::normalizeDate($periodData['current_date'])],
                 $periodData
             );
 

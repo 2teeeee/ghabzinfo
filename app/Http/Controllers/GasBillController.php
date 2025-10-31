@@ -5,11 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Center;
 use App\Models\City;
 use App\Models\GasAccount;
-use App\Models\GasBill;
 use App\Models\GasBillExtra;
 use App\Models\GasBillPeriod;
-use App\Models\User;
-use App\Services\ElectricityBillService;
+use App\Services\CommonService;
 use App\Services\GasBillService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -118,13 +116,13 @@ class GasBillController extends Controller
             $period = GasBillPeriod::updateOrCreate(
                 [
                     'gas_account_id' => $account->id,
-                    'current_date' => $params['CurrentDate'] ?? null,
+                    'current_date' => CommonService::normalizeDate($params['CurrentDate'] ?? null),
                 ],
                 [
                     'amount' => $params['Amount'] ?? 0,
                     'payment_id' => $params['PaymentID'] ?? null,
-                    'previous_date' => $params['PreviousDate'] ?? null,
-                    'payment_date' => $params['PaymentDate'] ?? null,
+                    'previous_date' => CommonService::normalizeDate($params['PreviousDate'] ?? null),
+                    'payment_date' => CommonService::normalizeDate($params['PaymentDate'] ?? null),
                     'bill_pdf_url' => $params['BillPdfUrl'] ?? null,
                     'consumption_type' => $params['ConsumptionType'] ?? null,
                     'previous_counter_digit' => $params['PreviousCounterDigit'] ?? null,
@@ -175,8 +173,8 @@ class GasBillController extends Controller
             $periodData = [
                 'amount' => $params['Amount'] ?? 0,
                 'payment_id' => $params['PaymentID'] ?? null,
-                'previous_date' => $params['PreviousDate'] ?? null,
-                'payment_date' => $params['PaymentDate'] ?? null,
+                'previous_date' => CommonService::normalizeDate($params['PreviousDate'] ?? null),
+                'payment_date' => CommonService::normalizeDate($params['PaymentDate'] ?? null),
                 'bill_pdf_url' => $params['BillPdfUrl'] ?? null,
                 'consumption_type' => $params['ConsumptionType'] ?? null,
                 'previous_counter_digit' => $params['PreviousCounterDigit'] ?? null,
@@ -190,7 +188,7 @@ class GasBillController extends Controller
 
             // بررسی اینکه آیا دوره با current_date موجود است یا خیر
             $period = $account->periods()->updateOrCreate(
-                ['current_date' => $periodData['current_date']],
+                ['current_date' => CommonService::normalizeDate($periodData['current_date'])],
                 $periodData
             );
 

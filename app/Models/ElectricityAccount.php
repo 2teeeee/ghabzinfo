@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Morilog\Jalali\Jalalian;
 
 class ElectricityAccount extends Model
 {
@@ -50,5 +51,24 @@ class ElectricityAccount extends Model
     public function latestPeriod(): HasOne
     {
         return $this->hasOne(ElectricityBillPeriod::class)->latestOfMany();
+    }
+
+    public function getJalaliCreatedAtAttribute(): ?string
+    {
+        return $this->created_at
+            ? Jalalian::fromCarbon($this->created_at)->format('Y/m/d')
+            : null;
+    }
+    public function getJalaliUpdatedAtAttribute(): ?string
+    {
+        return $this->updated_at
+            ? Jalalian::fromCarbon($this->updated_at)->format('Y/m/d')
+            : null;
+    }
+    public function getJalaliDeletedAtAttribute(): ?string
+    {
+        return $this->deleted_at
+            ? Jalalian::fromCarbon($this->deleted_at)->format('Y/m/d')
+            : null;
     }
 }

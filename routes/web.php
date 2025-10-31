@@ -73,6 +73,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     });
 
     Route::middleware(['role:admin,city,organ'])->group(function () {
+        Route::get('/reports/electricity/dashboard', [ReportController::class, 'electricityDashboard'])->name('reports.electricity.dashboard');
         Route::resource('units', UnitController::class)->names('units');
     });
 

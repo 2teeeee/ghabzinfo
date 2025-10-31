@@ -2,62 +2,110 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ElectricityBillExtra;
+use App\Models\ElectricityAccount;
 use App\Models\ElectricityBillPeriod;
-use Illuminate\Contracts\View\View;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
+use Morilog\Jalali\Jalalian;
 
 class ReportController extends Controller
 {
-    public function electricityBillLastMonth(): View
+    public function electricityDashboard(Request $request)
     {
-        // انتخاب آخرین ماه (بر اساس بیشترین current_date)
-        $lastMonth = ElectricityBillPeriod::max('current_date');
+        // گرفتن تاریخ آخرین دوره
+        $lastPeriod = ElectricityBillPeriod::orderByDesc('current_date')->first();
+        $lastDate = $lastPeriod ? Carbon::parse($lastPeriod->current_date) : now();
 
-        // جمع کل مبلغ قبوض هر مرکز در آخرین ماه
-        $baseQuery = DB::table('electricity_bill_periods as p')
-            ->join('electricity_accounts as a', 'p.electricity_account_id', '=', 'a.id')
-            ->leftJoin('centers as c', 'a.center_id', '=', 'c.id')
+// تبدیل به Jalali
+        $lastJalali = Jalalian::fromCarbon($lastDate);
+
+// دریافت ماه و سال از request یا پیش‌فرض
+        $month = $request->input('month', (int)$lastJalali->format('m')); // ماه شمسی
+        $year  = $request->input('year', (int)$lastJalali->format('Y'));   // سال شمسی
+
+// بازه میلادی
+        $start = Jalalian::fromFormat('Y/m/d', sprintf('%04d/%02d/01', $year, $month))->toCarbon()->startOfMonth();
+        $end   = (clone $start)->endOfMonth();
+
+        // -------------------------------
+        // 2️⃣ تعداد کنتورها
+        // -------------------------------
+        $counterCount = ElectricityAccount::whereHas('periods', function($q) use ($start, $end) {
+            $q->whereBetween('current_date', [$start, $end]);
+        })->count();
+
+        // -------------------------------
+        // 3️⃣ مبلغ برق تجمیعی و مصرف
+        // -------------------------------
+        $aggregates = ElectricityBillPeriod::whereBetween('current_date', [$start, $end])
             ->select(
-                'c.name as center_name',
-                DB::raw('SUM(p.amount) as total_amount'),
-                DB::raw('MAX(p.id) as latest_period_id')
+                DB::raw('SUM(amount) as total_amount'),
+                DB::raw('SUM(CAST(average_consumption AS DECIMAL)) as total_consumption')
             )
-            ->where('p.current_date', $lastMonth)
-            ->groupBy('c.id', 'c.name')
-            ->get();
+            ->first();
 
-        // دریافت extras برای آخرین دوره‌ها
-        $extras = ElectricityBillExtra::whereIn('electricity_bill_period_id', $baseQuery->pluck('latest_period_id'))
-            ->whereIn('key', ['مصرف کم باری', 'مصرف میان باری', 'مصرف پر باری'])
-            ->get()
-            ->groupBy('electricity_bill_period_id');
+        $totalAmount = $aggregates->total_amount ?? 0;
+        $totalConsumption = $aggregates->total_consumption ?? 0;
 
-        // تجمیع اطلاعات نهایی
-        $reports = $baseQuery->map(function ($item) use ($extras) {
-            $item->low_amount = 0;
-            $item->mid_amount = 0;
-            $item->peak_amount = 0;
+        // -------------------------------
+        // 4️⃣ مقایسه مبلغ قبوض برق در 3 سال گذشته
+        // -------------------------------
+        $yearlyComparison = [];
+        $currentYear = Carbon::now()->year;
+        for ($i = 0; $i < 3; $i++) {
+            $y = $currentYear - $i;
+            $sum = ElectricityBillPeriod::whereYear('current_date', $y)->sum('amount');
+            $yearlyComparison[] = [
+                'year' => $y,
+                'amount' => $sum,
+            ];
+        }
 
-            if (isset($extras[$item->latest_period_id])) {
-                foreach ($extras[$item->latest_period_id] as $extra) {
-                    switch ($extra->key) {
-                        case 'مصرف کم باری':
-                            $item->low_amount = (int) $extra->value;
-                            break;
-                        case 'مصرف میان باری':
-                            $item->mid_amount = (int) $extra->value;
-                            break;
-                        case 'مصرف پر باری':
-                            $item->peak_amount = (int) $extra->value;
-                            break;
-                    }
-                }
-            }
+        // -------------------------------
+        // 5️⃣ کاهش مصرف ماه آخر نسبت به ماه مشابه سال قبل
+        // -------------------------------
+        $currentMonthAmount = ElectricityBillPeriod::whereBetween('current_date', [$start, $end])
+            ->sum(DB::raw('CAST(average_consumption AS DECIMAL)'));
 
-            return $item;
-        });
+        $lastYearStart = (clone $start)->subYear();
+        $lastYearEnd   = (clone $end)->subYear();
 
-        return view('admin.reports.electricity_last_month', compact('reports', 'lastMonth'));
+        $lastYearMonthAmount = ElectricityBillPeriod::whereBetween('current_date', [$lastYearStart, $lastYearEnd])
+            ->sum(DB::raw('CAST(average_consumption AS DECIMAL)'));
+
+        $consumptionDecrease = $lastYearMonthAmount > 0
+            ? round(($lastYearMonthAmount - $currentMonthAmount) / $lastYearMonthAmount * 100, 2)
+            : null;
+
+        // -------------------------------
+        // 6️⃣ مصرف فصلی برق (3 ماه اخیر)
+        // -------------------------------
+        $seasonData = collect();
+        for ($i = 2; $i >= 0; $i--) {
+            $tempStart = (clone $start)->subMonths($i)->startOfMonth();
+            $tempEnd = (clone $tempStart)->endOfMonth();
+
+            $seasonData->push([
+                'month' => Jalalian::fromCarbon($tempStart)->format('Y/m'),
+                'value' => ElectricityBillPeriod::whereBetween('current_date', [$tempStart, $tempEnd])
+                    ->sum(DB::raw('CAST(average_consumption AS DECIMAL)')),
+            ]);
+        }
+
+        // -------------------------------
+        // نمایش view
+        // -------------------------------
+        return view('admin.reports.electricity_dashboard', compact(
+            'month',
+            'year',
+            'counterCount',
+            'totalAmount',
+            'totalConsumption',
+            'yearlyComparison',
+            'consumptionDecrease',
+            'seasonData'
+        ));
     }
 }

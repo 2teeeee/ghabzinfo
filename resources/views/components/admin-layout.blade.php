@@ -164,9 +164,9 @@
     @endif
     <hr class="border-secondary">
     @if(auth()->user()->hasRole(['admin','city','organ','units']))
-        <a href="{{ route('admin.reports.electricity.last') }}" class="{{ request()->routeIs('admin.reports.electricity.*') ? 'active' : '' }}">
+        <a href="{{ route('admin.reports.electricity.dashboard') }}" class="{{ request()->routeIs('admin.reports.electricity.dashboard') ? 'active' : '' }}">
             <i class="bi bi-chart me-2"></i>
-            گزارش ماه آخر قبوض برق
+            گزارش تفصیلی قبوض برق
         </a>
     @endif
     <hr class="border-secondary">

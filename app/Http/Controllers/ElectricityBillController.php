@@ -7,6 +7,7 @@ use App\Models\City;
 use App\Models\ElectricityAccount;
 use App\Models\ElectricityBillExtra;
 use App\Models\ElectricityBillPeriod;
+use App\Services\CommonService;
 use App\Services\ElectricityBillService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -79,7 +80,6 @@ class ElectricityBillController extends Controller
     {
         $user = Auth::user();
 
-        // اعتبارسنجی
         $rules = ['bill_id' => 'required|string'];
         if ($user->hasRole(['admin','city','organ','unit'])) {
             $rules['center_id'] = 'required|exists:centers,id';
@@ -97,7 +97,7 @@ class ElectricityBillController extends Controller
 
             $center = Center::with('unit.organ.city')->findOrFail($centerId);
 
-            // حساب اصلی قبض
+            // 🔹 حساب اصلی قبض
             $account = ElectricityAccount::updateOrCreate(
                 ['bill_id' => $request->bill_id],
                 [
@@ -113,18 +113,18 @@ class ElectricityBillController extends Controller
                 ]
             );
 
-            // بررسی وجود دوره بر اساس current_date و cycle
+            // 🔹 بررسی وجود دوره و ذخیره اطلاعات با تاریخ‌های اصلاح‌شده
             $period = ElectricityBillPeriod::updateOrCreate(
                 [
                     'electricity_account_id' => $account->id,
-                    'current_date' => $params['CurrentDate'] ?? null,
+                    'current_date' => CommonService::normalizeDate($params['CurrentDate'] ?? null),
                     'cycle' => $params['Cycle'] ?? null,
                 ],
                 [
                     'amount' => $params['Amount'] ?? 0,
                     'payment_id' => $params['PaymentID'] ?? null,
-                    'previous_date' => $params['PreviousDate'] ?? null,
-                    'payment_date' => $params['PaymentDate'] ?? null,
+                    'previous_date' => CommonService::normalizeDate($params['PreviousDate'] ?? null),
+                    'payment_date' => CommonService::normalizeDate($params['PaymentDate'] ?? null),
                     'bill_pdf_url' => $params['BillPdfUrl'] ?? null,
                     'sale_year' => $params['SaleYear'] ?? null,
                     'average_consumption' => $params['AverageConsumption'] ?? null,
@@ -138,7 +138,7 @@ class ElectricityBillController extends Controller
                 ]
             );
 
-            // اطلاعات اضافی: ابتدا حذف قبلی و سپس ذخیره جدید
+            // 🔹 اطلاعات اضافی: ابتدا حذف قبلی و سپس ذخیره جدید
             $period->extras()->delete();
             foreach ($extraData as $key => $value) {
                 ElectricityBillExtra::create([
@@ -176,9 +176,9 @@ class ElectricityBillController extends Controller
             $periodData = [
                 'amount' => $params['Amount'] ?? null,
                 'payment_id' => $params['PaymentID'] ?? null,
-                'previous_date' => $params['PreviousDate'] ?? null,
-                'current_date' => $params['CurrentDate'] ?? null,
-                'payment_date' => $params['PaymentDate'] ?? null,
+                'previous_date' => CommonService::normalizeDate($params['PreviousDate'] ?? null),
+                'current_date' => CommonService::normalizeDate($params['CurrentDate'] ?? null),
+                'payment_date' => CommonService::normalizeDate($params['PaymentDate'] ?? null),
                 'bill_pdf_url' => $params['BillPdfUrl'] ?? null,
                 'sale_year' => $params['SaleYear'] ?? null,
                 'cycle' => $params['Cycle'] ?? null,
@@ -194,7 +194,7 @@ class ElectricityBillController extends Controller
 
             // بررسی اینکه آیا دوره با current_date موجود است یا خیر
             $period = $account->periods()->updateOrCreate(
-                ['current_date' => $periodData['current_date']],
+                ['current_date' => CommonService::normalizeDate($periodData['current_date'])],
                 $periodData
             );
 

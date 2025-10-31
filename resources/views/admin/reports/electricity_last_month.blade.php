@@ -1,5 +1,6 @@
 <x-admin-layout title="گزارش قبوض برق ماه آخر" header="گزارش قبوض برق ماه آخر">
     <div class="container-fluid py-4">
+
         {{-- هدر صفحه --}}
         <x-admin-page-header
             title="گزارش قبوض برق ماه آخر"
@@ -11,7 +12,7 @@
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
                 <h5 class="fw-bold mb-3 text-primary">
-                    📅 گزارش قبوض برق ماه آخر ({{ $lastMonth ?? 'نامشخص' }})
+                    📅 گزارش قبوض برق ماه شمسی ({{ $lastMonth ?? 'نامشخص' }})
                 </h5>
 
                 {{-- جدول داده‌ها --}}
@@ -21,7 +22,7 @@
                         <tr>
                             <th>#</th>
                             <th>مرکز</th>
-                            <th>مبلغ کل</th>
+                            <th>مبلغ کل (ریال)</th>
                             <th>کم‌باری</th>
                             <th>میان‌باری</th>
                             <th>پرباری</th>
@@ -53,7 +54,7 @@
 
         {{-- نمودارها --}}
         <div class="row mt-4 g-4">
-            <div class="col-6">
+            <div class="col-lg-6">
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
                         <h6 class="text-center fw-bold mb-3">💰 مبلغ کل قبوض به تفکیک مرکز</h6>
@@ -62,7 +63,7 @@
                 </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-lg-6">
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
                         <h6 class="text-center fw-bold mb-3">🔵 مصرف کم‌باری (Low)</h6>
@@ -71,7 +72,7 @@
                 </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-lg-6">
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
                         <h6 class="text-center fw-bold mb-3">🟢 مصرف میان‌باری (Mid)</h6>
@@ -80,7 +81,7 @@
                 </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-lg-6">
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
                         <h6 class="text-center fw-bold mb-3">🔴 مصرف پرباری (Peak)</h6>
@@ -117,18 +118,16 @@
                             y: {
                                 beginAtZero: true,
                                 ticks: {
-                                    callback: value => value.toLocaleString()
+                                    callback: value => value.toLocaleString('fa-IR')
                                 }
                             }
                         },
-                        plugins: {
-                            legend: { display: false }
-                        }
+                        plugins: { legend: { display: false } }
                     }
                 });
-            }
+            };
 
-            makeChart('totalChart', 'مبلغ کل', totals, '#42464d');
+            makeChart('totalChart', 'مبلغ کل', totals, '#6b7280');
             makeChart('lowChart', 'کم‌باری', lows, '#2563eb');
             makeChart('midChart', 'میان‌باری', mids, '#10b981');
             makeChart('peakChart', 'پرباری', peaks, '#ef4444');
