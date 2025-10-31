@@ -168,6 +168,14 @@
             <i class="bi bi-chart me-2"></i>
             گزارش تفصیلی قبوض برق
         </a>
+        <a href="{{ route('admin.reports.gas.dashboard') }}" class="{{ request()->routeIs('admin.reports.gas.dashboard') ? 'active' : '' }}">
+            <i class="bi bi-chart me-2"></i>
+            گزارش تفصیلی قبوض گاز
+        </a>
+        <a href="{{ route('admin.reports.water.dashboard') }}" class="{{ request()->routeIs('admin.reports.water.dashboard') ? 'active' : '' }}">
+            <i class="bi bi-chart me-2"></i>
+            گزارش تفصیلی قبوض آب
+        </a>
     @endif
     <hr class="border-secondary">
     <a href="{{ route('logout') }}"
